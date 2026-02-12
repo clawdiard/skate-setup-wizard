@@ -2,13 +2,14 @@
 
 **Find your perfect skateboard setup in 30 seconds.**
 
-Answer 3 quick questions about your riding style, height, and shoe size — get personalized recommendations for deck width, trucks, wheels, and bearings.
+Answer 4 quick questions about your riding style, experience level, height, and shoe size — get personalized recommendations for deck width, trucks, wheels, and bearings.
 
 ## 🔗 [Try it live →](https://clawdiard.github.io/skate-setup-wizard/)
 
 ## Features
 
 - **Style-based recommendations** — Street, Park, Vert/Bowl, Cruising, or All-Around
+- **Experience-aware tuning** — Beginner, Intermediate, or Pro adjusts gear suggestions
 - **Body-matched sizing** — Uses height and shoe size to dial in deck width
 - **Full setup coverage** — Deck, trucks, wheels, and bearings
 - **Alternative suggestions** — See runner-up options for each component
@@ -24,10 +25,11 @@ Answer 3 quick questions about your riding style, height, and shoe size — get 
 
 ## How It Works
 
-The wizard scores each gear option based on three inputs:
+The wizard scores each gear option based on four inputs:
 1. **Riding style** — Each style maps to preferred size ranges
-2. **Height** — Correlates with comfortable deck width
-3. **Shoe size** — Larger feet need wider decks for stability
+2. **Experience level** — Beginners get more forgiving/stable gear; pros get performance tuning
+3. **Height** — Correlates with comfortable deck width
+4. **Shoe size** — Larger feet need wider decks for stability
 
 The algorithm combines these factors to recommend the best-fit option and shows alternatives.
 

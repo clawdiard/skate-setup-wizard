@@ -125,7 +125,7 @@
   <div class="container">
     <header>
       <h1>🛹 Skate Setup <span>Wizard</span></h1>
-      <p>Answer 3 quick questions — get your perfect setup</p>
+      <p>Answer 4 quick questions — get your perfect setup</p>
     </header>
 
     <div class="progress" id="progress">
@@ -133,6 +133,7 @@
       <div class="dot" data-step="1"></div>
       <div class="dot" data-step="2"></div>
       <div class="dot" data-step="3"></div>
+      <div class="dot" data-step="4"></div>
     </div>
 
     <!-- Step 0: Style -->
@@ -142,8 +143,34 @@
       <div class="options" id="style-options"></div>
     </div>
 
-    <!-- Step 1: Height -->
+    <!-- Step 1: Experience Level -->
     <div class="step" id="step-1">
+      <h2>What's your experience level?</h2>
+      <p class="hint">This helps us dial in the right gear for where you're at</p>
+      <div class="options" id="level-options">
+        <div class="option" onclick="selectLevel(this, 'beginner')">
+          <div class="icon">🌱</div>
+          <div class="label">Beginner</div>
+          <div class="desc">Just starting out or getting back into it</div>
+        </div>
+        <div class="option" onclick="selectLevel(this, 'intermediate')">
+          <div class="icon">🔥</div>
+          <div class="label">Intermediate</div>
+          <div class="desc">Comfortable riding, learning new tricks</div>
+        </div>
+        <div class="option" onclick="selectLevel(this, 'pro')">
+          <div class="icon">🏆</div>
+          <div class="label">Pro / Advanced</div>
+          <div class="desc">Years of experience, pushing limits</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Height -->
+    <div class="step" id="step-2">
       <h2>How tall are you?</h2>
       <p class="hint">This helps determine your ideal deck width</p>
       <div class="slider-group">
@@ -159,8 +186,8 @@
       </div>
     </div>
 
-    <!-- Step 2: Shoe size -->
-    <div class="step" id="step-2">
+    <!-- Step 3: Shoe size -->
+    <div class="step" id="step-3">
       <h2>What's your shoe size?</h2>
       <p class="hint">US men's sizing — affects deck width recommendation</p>
       <div class="slider-group">
@@ -176,8 +203,8 @@
       </div>
     </div>
 
-    <!-- Step 3: Results -->
-    <div class="step" id="step-3">
+    <!-- Step 4: Results -->
+    <div class="step" id="step-4">
       <h2>Your Recommended Setup</h2>
       <div class="summary-bar" id="summary-bar"></div>
       <div class="results" id="results"></div>
@@ -196,6 +223,14 @@
     let gearData = null;
     let currentStep = 0;
     let selectedStyle = null;
+    let selectedLevel = null;
+
+    function selectLevel(el, level) {
+      document.querySelectorAll('#level-options .option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedLevel = level;
+      setTimeout(() => nextStep(), 300);
+    }
 
     fetch('data/gear.json').then(r => r.json()).then(d => {
       gearData = d;
@@ -255,12 +290,21 @@
       const height = parseInt(document.getElementById('height').value);
       const shoe = parseFloat(document.getElementById('shoe').value);
       const style = selectedStyle;
+      const level = selectedLevel || 'intermediate';
 
-      // Calculate deck
+      // Experience level modifiers
+      const levelConfig = {
+        beginner:     { deckBias: 0.125, wheelBias: 2, bearingPref: 'ABEC 3', wheelSoft: true, label: 'Beginner' },
+        intermediate: { deckBias: 0, wheelBias: 0, bearingPref: null, wheelSoft: false, label: 'Intermediate' },
+        pro:          { deckBias: 0, wheelBias: -1, bearingPref: 'Swiss', wheelSoft: false, label: 'Pro / Advanced' }
+      };
+      const lc = levelConfig[level];
+
+      // Calculate deck — beginners get slightly wider for stability
       const deckScores = gearData.deckSizes.map(d => {
         let score = 0;
         if (style.bestFor) {
-          style.preferDeck.forEach(p => { score -= Math.abs(d.width - p) * 2; });
+          style.preferDeck.forEach(p => { score -= Math.abs(d.width - (p + lc.deckBias)) * 2; });
         }
         if (height >= d.heightRange[0] && height <= d.heightRange[1]) score += 3;
         if (shoe >= d.shoeRange[0] && shoe <= d.shoeRange[1]) score += 3;
@@ -272,21 +316,38 @@
       // Trucks
       const bestTruck = gearData.trucks.find(t => bestDeck.width >= t.matchDeck[0] && bestDeck.width <= t.matchDeck[1]) || gearData.trucks[1];
 
-      // Wheels
+      // Wheels — beginners get slightly larger/softer wheels; pros get smaller/harder
+      const targetDiameter = (style.preferWheel[0] + style.preferWheel[1]) / 2 + lc.wheelBias;
       const wheelScores = gearData.wheels.map(w => {
         let score = 0;
-        if (w.diameter >= style.preferWheel[0] && w.diameter <= style.preferWheel[1]) score += 5;
+        score -= Math.abs(w.diameter - targetDiameter) * 0.5;
+        if (w.diameter >= style.preferWheel[0] && w.diameter <= style.preferWheel[1]) score += 3;
+        // Beginners prefer softer cruiser wheels for forgiveness
+        if (lc.wheelSoft && w.durometer.match(/[78-90]a/) && parseInt(w.durometer) < 90) score += 2;
         return { ...w, score };
       });
       wheelScores.sort((a, b) => b.score - a.score);
       const bestWheel = wheelScores[0];
 
-      // Bearings
-      const bestBearing = gearData.bearings.find(b => b.rating === style.preferBearing) || gearData.bearings[1];
+      // Bearings — override by experience level if configured
+      let bestBearing;
+      if (lc.bearingPref) {
+        bestBearing = gearData.bearings.find(b => b.rating === lc.bearingPref) || gearData.bearings[1];
+      } else {
+        bestBearing = gearData.bearings.find(b => b.rating === style.preferBearing) || gearData.bearings[1];
+      }
+
+      // Experience-specific tip
+      const levelTips = {
+        beginner: '💡 As a beginner, we\'ve nudged you toward a slightly wider deck and forgiving gear for stability while you learn.',
+        intermediate: '',
+        pro: '💡 As an advanced skater, we\'ve optimized for performance — precision bearings and responsive wheel sizing.'
+      };
 
       // Show summary
       document.getElementById('summary-bar').innerHTML = `
         <div class="tag">${style.icon} <strong>${style.name}</strong></div>
+        <div class="tag">${levelConfig[level].label === 'Beginner' ? '🌱' : level === 'pro' ? '🏆' : '🔥'} <strong>${lc.label}</strong></div>
         <div class="tag">📏 <strong>${height} cm</strong></div>
         <div class="tag">👟 <strong>US ${shoe}</strong></div>
       `;
@@ -296,6 +357,7 @@
       const altWheels = wheelScores.slice(1, 3).map(w => `${w.diameter}mm ${w.durometer}`);
 
       document.getElementById('results').innerHTML = `
+        ${levelTips[level] ? `<div class="result-card" style="border-left:3px solid var(--accent);"><p>${levelTips[level]}</p></div>` : ''}
         <div class="result-card">
           <h3>📐 Deck Width</h3>
           <div class="rec">${bestDeck.label}</div>
@@ -322,13 +384,14 @@
       `;
 
       document.getElementById(`step-${currentStep}`).classList.remove('active');
-      currentStep = 3;
-      document.getElementById('step-3').classList.add('active');
+      currentStep = 4;
+      document.getElementById('step-4').classList.add('active');
       updateProgress();
     }
 
     function restart() {
       selectedStyle = null;
+      selectedLevel = null;
       document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
       document.getElementById('height').value = 170;
       document.getElementById('height-display').textContent = '170 cm';
