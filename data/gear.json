@@ -1,0 +1,40 @@
+{
+  "deckSizes": [
+    {"width": 7.5, "label": "7.5\"", "bestFor": ["kids", "street"], "heightRange": [0, 160], "shoeRange": [0, 8]},
+    {"width": 7.75, "label": "7.75\"", "bestFor": ["street", "technical"], "heightRange": [150, 170], "shoeRange": [7, 9]},
+    {"width": 8.0, "label": "8.0\"", "bestFor": ["street", "park", "all-around"], "heightRange": [160, 180], "shoeRange": [8, 10]},
+    {"width": 8.125, "label": "8.125\"", "bestFor": ["street", "park", "transition"], "heightRange": [165, 185], "shoeRange": [9, 11]},
+    {"width": 8.25, "label": "8.25\"", "bestFor": ["park", "transition", "bowl"], "heightRange": [170, 190], "shoeRange": [9, 11]},
+    {"width": 8.5, "label": "8.5\"", "bestFor": ["transition", "bowl", "vert", "cruising"], "heightRange": [175, 200], "shoeRange": [10, 13]},
+    {"width": 8.75, "label": "8.75\"", "bestFor": ["bowl", "vert", "pool"], "heightRange": [180, 210], "shoeRange": [11, 14]},
+    {"width": 9.0, "label": "9.0+\"", "bestFor": ["vert", "pool", "cruising"], "heightRange": [185, 220], "shoeRange": [11, 15]}
+  ],
+  "trucks": [
+    {"width": "7.6\"", "axle": 129, "matchDeck": [7.25, 7.75], "brands": ["Independent 129", "Thunder 145", "Venture 5.0"]},
+    {"width": "8.0\"", "axle": 139, "matchDeck": [7.75, 8.25], "brands": ["Independent 139", "Thunder 147", "Venture 5.2"]},
+    {"width": "8.5\"", "axle": 149, "matchDeck": [8.25, 8.75], "brands": ["Independent 149", "Thunder 148", "Venture 5.8"]},
+    {"width": "9.0\"", "axle": 159, "matchDeck": [8.75, 9.25], "brands": ["Independent 159", "Thunder 151", "Venture 6.1"]}
+  ],
+  "wheels": [
+    {"diameter": 50, "durometer": "99a", "type": "Street", "description": "Small & hard — technical street skating, flatground tricks"},
+    {"diameter": 52, "durometer": "99a", "type": "Street/Park", "description": "Versatile street/park size, good all-around choice"},
+    {"diameter": 54, "durometer": "99a", "type": "Park/Bowl", "description": "Great for parks and smooth surfaces, carries speed"},
+    {"diameter": 56, "durometer": "97a", "type": "Transition", "description": "Bowl and transition skating, fast with good grip"},
+    {"diameter": 58, "durometer": "95a", "type": "Vert/Pool", "description": "Vert and pool skating, maximum speed"},
+    {"diameter": 54, "durometer": "86a", "type": "Cruiser (Soft)", "description": "Soft cruiser wheels for rough surfaces and commuting"},
+    {"diameter": 60, "durometer": "78a", "type": "Cruiser/Longboard", "description": "Maximum comfort on rough terrain, smooth ride"}
+  ],
+  "bearings": [
+    {"rating": "ABEC 3", "level": "Budget", "description": "Good for beginners, affordable and reliable"},
+    {"rating": "ABEC 5", "level": "Standard", "description": "Most popular choice, great balance of speed and durability"},
+    {"rating": "ABEC 7", "level": "Performance", "description": "Faster spin, good for experienced skaters"},
+    {"rating": "Swiss", "level": "Premium", "description": "Top-tier precision, used by pros. Worth the investment."}
+  ],
+  "styles": [
+    {"id": "street", "name": "Street", "icon": "🏙️", "description": "Ledges, stairs, rails, flatground tricks", "preferDeck": [7.75, 8.125], "preferWheel": [50, 53], "preferBearing": "ABEC 5"},
+    {"id": "park", "name": "Park", "icon": "🛹", "description": "Skateparks, ramps, quarterpipes", "preferDeck": [8.0, 8.375], "preferWheel": [52, 56], "preferBearing": "ABEC 5"},
+    {"id": "vert", "name": "Vert / Bowl", "icon": "🌊", "description": "Halfpipes, bowls, pools", "preferDeck": [8.25, 9.0], "preferWheel": [54, 58], "preferBearing": "ABEC 7"},
+    {"id": "cruising", "name": "Cruising", "icon": "🚶", "description": "Getting around town, commuting", "preferDeck": [8.0, 9.0], "preferWheel": [54, 60], "preferBearing": "ABEC 7"},
+    {"id": "allaround", "name": "All-Around", "icon": "⭐", "description": "A bit of everything", "preferDeck": [8.0, 8.25], "preferWheel": [52, 54], "preferBearing": "ABEC 5"}
+  ]
+}

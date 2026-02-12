@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skate Setup Wizard — Find Your Perfect Skateboard Setup</title>
+  <meta name="description" content="Answer a few questions about your riding style, height, and shoe size to get personalized skateboard gear recommendations.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛹</text></svg>">
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a2e;
+      --surface2: #16213e;
+      --accent: #e94560;
+      --accent2: #0f3460;
+      --text: #eee;
+      --text-dim: #999;
+      --green: #00c853;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+    .container { max-width: 720px; margin: 0 auto; padding: 24px 16px; }
+    header { text-align: center; padding: 40px 0 32px; }
+    header h1 { font-size: 2.2rem; margin-bottom: 8px; }
+    header h1 span { color: var(--accent); }
+    header p { color: var(--text-dim); font-size: 1.1rem; }
+    .step { display: none; animation: fadeIn 0.3s ease; }
+    .step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    .step h2 { font-size: 1.4rem; margin-bottom: 16px; }
+    .step p.hint { color: var(--text-dim); margin-bottom: 20px; font-size: 0.95rem; }
+    .options { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px; }
+    .option {
+      background: var(--surface);
+      border: 2px solid transparent;
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .option:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .option.selected { border-color: var(--accent); background: var(--surface2); }
+    .option .icon { font-size: 2rem; margin-bottom: 8px; }
+    .option .label { font-weight: 600; font-size: 1rem; }
+    .option .desc { color: var(--text-dim); font-size: 0.8rem; margin-top: 4px; }
+    .slider-group { margin-bottom: 32px; }
+    .slider-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 1.1rem; }
+    .slider-value { text-align: center; font-size: 2rem; font-weight: 700; color: var(--accent); margin-bottom: 8px; }
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      -webkit-appearance: none;
+      background: var(--surface);
+      border-radius: 4px;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px; height: 24px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 24px; }
+    .btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-secondary { background: var(--surface); color: var(--text); }
+    .btn-secondary:hover { background: var(--surface2); }
+    .results { animation: fadeIn 0.4s ease; }
+    .result-card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .result-card h3 { font-size: 1.2rem; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    .result-card .rec { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    .result-card .reason { color: var(--text-dim); font-size: 0.9rem; margin-top: 8px; }
+    .result-card .alternatives { margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; }
+    .result-card .alternatives span { display: inline-block; background: var(--surface2); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; margin: 2px 4px 2px 0; }
+    .progress { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; }
+    .progress .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--surface);
+      transition: all 0.3s;
+    }
+    .progress .dot.done { background: var(--accent); }
+    .progress .dot.current { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .summary-bar {
+      background: var(--surface2);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 0.9rem;
+    }
+    .summary-bar .tag { color: var(--text-dim); }
+    .summary-bar .tag strong { color: var(--text); }
+    footer { text-align: center; padding: 40px 0 24px; color: var(--text-dim); font-size: 0.85rem; }
+    footer a { color: var(--accent); text-decoration: none; }
+    .restart-btn { margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🛹 Skate Setup <span>Wizard</span></h1>
+      <p>Answer 3 quick questions — get your perfect setup</p>
+    </header>
+
+    <div class="progress" id="progress">
+      <div class="dot current" data-step="0"></div>
+      <div class="dot" data-step="1"></div>
+      <div class="dot" data-step="2"></div>
+      <div class="dot" data-step="3"></div>
+    </div>
+
+    <!-- Step 0: Style -->
+    <div class="step active" id="step-0">
+      <h2>What's your riding style?</h2>
+      <p class="hint">Pick the one that describes you best</p>
+      <div class="options" id="style-options"></div>
+    </div>
+
+    <!-- Step 1: Height -->
+    <div class="step" id="step-1">
+      <h2>How tall are you?</h2>
+      <p class="hint">This helps determine your ideal deck width</p>
+      <div class="slider-group">
+        <div class="slider-value" id="height-display">170 cm</div>
+        <input type="range" id="height" min="120" max="210" value="170" step="1">
+        <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
+          <span>120 cm / 3'11"</span><span>210 cm / 6'11"</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Shoe size -->
+    <div class="step" id="step-2">
+      <h2>What's your shoe size?</h2>
+      <p class="hint">US men's sizing — affects deck width recommendation</p>
+      <div class="slider-group">
+        <div class="slider-value" id="shoe-display">US 9</div>
+        <input type="range" id="shoe" min="5" max="15" value="9" step="0.5">
+        <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
+          <span>US 5</span><span>US 15</span>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="showResults()">Get My Setup 🛹</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Results -->
+    <div class="step" id="step-3">
+      <h2>Your Recommended Setup</h2>
+      <div class="summary-bar" id="summary-bar"></div>
+      <div class="results" id="results"></div>
+      <div class="btn-row restart-btn">
+        <button class="btn btn-secondary" onclick="restart()">Start Over</button>
+      </div>
+    </div>
+
+    <footer>
+      <p>Built by <a href="https://github.com/clawdiard">Clawdia</a> — an autonomous OpenClaw agent 🦞</p>
+      <p style="margin-top:4px;">Data is general guidance. Always try before you buy!</p>
+    </footer>
+  </div>
+
+  <script>
+    let gearData = null;
+    let currentStep = 0;
+    let selectedStyle = null;
+
+    fetch('data/gear.json').then(r => r.json()).then(d => {
+      gearData = d;
+      renderStyleOptions();
+    });
+
+    function renderStyleOptions() {
+      const c = document.getElementById('style-options');
+      gearData.styles.forEach(s => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.innerHTML = `<div class="icon">${s.icon}</div><div class="label">${s.name}</div><div class="desc">${s.description}</div>`;
+        div.onclick = () => {
+          document.querySelectorAll('#style-options .option').forEach(o => o.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedStyle = s;
+          setTimeout(() => nextStep(), 300);
+        };
+        c.appendChild(div);
+      });
+    }
+
+    function nextStep() {
+      if (currentStep === 0 && !selectedStyle) return;
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      currentStep++;
+      document.getElementById(`step-${currentStep}`).classList.add('active');
+      updateProgress();
+    }
+
+    function prevStep() {
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      currentStep--;
+      document.getElementById(`step-${currentStep}`).classList.add('active');
+      updateProgress();
+    }
+
+    function updateProgress() {
+      document.querySelectorAll('.progress .dot').forEach((d, i) => {
+        d.className = 'dot' + (i < currentStep ? ' done' : '') + (i === currentStep ? ' current' : '');
+      });
+    }
+
+    document.getElementById('height').addEventListener('input', e => {
+      const cm = e.target.value;
+      const inches = Math.round(cm / 2.54);
+      const ft = Math.floor(inches / 12);
+      const remaining = inches % 12;
+      document.getElementById('height-display').textContent = `${cm} cm (${ft}'${remaining}")`;
+    });
+
+    document.getElementById('shoe').addEventListener('input', e => {
+      document.getElementById('shoe-display').textContent = `US ${e.target.value}`;
+    });
+
+    function showResults() {
+      const height = parseInt(document.getElementById('height').value);
+      const shoe = parseFloat(document.getElementById('shoe').value);
+      const style = selectedStyle;
+
+      // Calculate deck
+      const deckScores = gearData.deckSizes.map(d => {
+        let score = 0;
+        if (style.bestFor) {
+          style.preferDeck.forEach(p => { score -= Math.abs(d.width - p) * 2; });
+        }
+        if (height >= d.heightRange[0] && height <= d.heightRange[1]) score += 3;
+        if (shoe >= d.shoeRange[0] && shoe <= d.shoeRange[1]) score += 3;
+        return { ...d, score };
+      });
+      deckScores.sort((a, b) => b.score - a.score);
+      const bestDeck = deckScores[0];
+
+      // Trucks
+      const bestTruck = gearData.trucks.find(t => bestDeck.width >= t.matchDeck[0] && bestDeck.width <= t.matchDeck[1]) || gearData.trucks[1];
+
+      // Wheels
+      const wheelScores = gearData.wheels.map(w => {
+        let score = 0;
+        if (w.diameter >= style.preferWheel[0] && w.diameter <= style.preferWheel[1]) score += 5;
+        return { ...w, score };
+      });
+      wheelScores.sort((a, b) => b.score - a.score);
+      const bestWheel = wheelScores[0];
+
+      // Bearings
+      const bestBearing = gearData.bearings.find(b => b.rating === style.preferBearing) || gearData.bearings[1];
+
+      // Show summary
+      document.getElementById('summary-bar').innerHTML = `
+        <div class="tag">${style.icon} <strong>${style.name}</strong></div>
+        <div class="tag">📏 <strong>${height} cm</strong></div>
+        <div class="tag">👟 <strong>US ${shoe}</strong></div>
+      `;
+
+      // Render results
+      const altDecks = deckScores.slice(1, 4).map(d => d.label);
+      const altWheels = wheelScores.slice(1, 3).map(w => `${w.diameter}mm ${w.durometer}`);
+
+      document.getElementById('results').innerHTML = `
+        <div class="result-card">
+          <h3>📐 Deck Width</h3>
+          <div class="rec">${bestDeck.label}</div>
+          <div class="reason">Best for ${bestDeck.bestFor.join(', ')} skating at your height and shoe size.</div>
+          <div class="alternatives">Also consider: ${altDecks.map(a => `<span>${a}</span>`).join('')}</div>
+        </div>
+        <div class="result-card">
+          <h3>🔧 Trucks</h3>
+          <div class="rec">${bestTruck.axle}mm axle (${bestTruck.width} hanger)</div>
+          <div class="reason">Matched to your deck width. Trucks should be ±0.25" of deck width.</div>
+          <div class="alternatives">Popular picks: ${bestTruck.brands.map(b => `<span>${b}</span>`).join('')}</div>
+        </div>
+        <div class="result-card">
+          <h3>⚙️ Wheels</h3>
+          <div class="rec">${bestWheel.diameter}mm ${bestWheel.durometer} (${bestWheel.type})</div>
+          <div class="reason">${bestWheel.description}</div>
+          <div class="alternatives">Also try: ${altWheels.map(w => `<span>${w}</span>`).join('')}</div>
+        </div>
+        <div class="result-card">
+          <h3>🔩 Bearings</h3>
+          <div class="rec">${bestBearing.rating}</div>
+          <div class="reason">${bestBearing.description}</div>
+        </div>
+      `;
+
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      currentStep = 3;
+      document.getElementById('step-3').classList.add('active');
+      updateProgress();
+    }
+
+    function restart() {
+      selectedStyle = null;
+      document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      document.getElementById('height').value = 170;
+      document.getElementById('height-display').textContent = '170 cm';
+      document.getElementById('shoe').value = 9;
+      document.getElementById('shoe-display').textContent = 'US 9';
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      currentStep = 0;
+      document.getElementById('step-0').classList.add('active');
+      updateProgress();
+    }
+  </script>
+</body>
+</html>
