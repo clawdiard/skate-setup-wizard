@@ -127,6 +127,9 @@
     footer { text-align: center; padding: 40px 0 24px; color: var(--text-dim); font-size: 0.85rem; }
     footer a { color: var(--accent); text-decoration: none; }
     .restart-btn { margin-top: 24px; }
+    .unit-toggle { display: flex; justify-content: center; gap: 0; margin-bottom: 16px; border-radius: var(--radius); overflow: hidden; border: 2px solid var(--accent); width: fit-content; margin-left: auto; margin-right: auto; }
+    .unit-toggle button { padding: 8px 20px; border: none; background: var(--surface); color: var(--text-dim); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .unit-toggle button.active { background: var(--accent); color: white; }
   </style>
 </head>
 <body>
@@ -181,11 +184,34 @@
     <div class="step" id="step-2">
       <h2>How tall are you?</h2>
       <p class="hint">This helps determine your ideal deck width</p>
-      <div class="slider-group">
+      <div class="unit-toggle" id="height-unit-toggle">
+        <button class="active" onclick="setHeightUnit('metric')">Metric (cm)</button>
+        <button onclick="setHeightUnit('imperial')">Imperial (ft/in)</button>
+      </div>
+      <div class="slider-group" id="height-metric">
         <div class="slider-value" id="height-display">170 cm</div>
         <input type="range" id="height" min="120" max="210" value="170" step="1">
         <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
-          <span>120 cm / 3'11"</span><span>210 cm / 6'11"</span>
+          <span>120 cm</span><span>210 cm</span>
+        </div>
+      </div>
+      <div class="slider-group" id="height-imperial" style="display:none;">
+        <div class="slider-value" id="height-display-imp">5'7"</div>
+        <div style="display:flex;gap:16px;align-items:center;justify-content:center;">
+          <div style="flex:1;">
+            <label style="font-size:0.85rem;color:var(--text-dim);margin-bottom:4px;display:block;">Feet</label>
+            <input type="range" id="height-ft" min="3" max="6" value="5" step="1">
+            <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
+              <span>3'</span><span>6'</span>
+            </div>
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:0.85rem;color:var(--text-dim);margin-bottom:4px;display:block;">Inches</label>
+            <input type="range" id="height-in" min="0" max="11" value="7" step="1">
+            <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
+              <span>0"</span><span>11"</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="btn-row">
@@ -197,11 +223,16 @@
     <!-- Step 3: Shoe size -->
     <div class="step" id="step-3">
       <h2>What's your shoe size?</h2>
-      <p class="hint">US men's sizing — affects deck width recommendation</p>
+      <p class="hint">Affects deck width recommendation</p>
+      <div class="unit-toggle" id="shoe-unit-toggle">
+        <button class="active" onclick="setShoeUnit('us')">US</button>
+        <button onclick="setShoeUnit('eu')">EU</button>
+        <button onclick="setShoeUnit('uk')">UK</button>
+      </div>
       <div class="slider-group">
         <div class="slider-value" id="shoe-display">US 9</div>
         <input type="range" id="shoe" min="5" max="15" value="9" step="0.5">
-        <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
+        <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;" id="shoe-range-labels">
           <span>US 5</span><span>US 15</span>
         </div>
       </div>
@@ -282,21 +313,111 @@
       });
     }
 
+    let heightUnit = 'metric';
+    let shoeUnit = 'us';
+
+    function setHeightUnit(unit) {
+      heightUnit = unit;
+      const btns = document.querySelectorAll('#height-unit-toggle button');
+      btns.forEach(b => b.classList.remove('active'));
+      if (unit === 'metric') {
+        btns[0].classList.add('active');
+        document.getElementById('height-metric').style.display = '';
+        document.getElementById('height-imperial').style.display = 'none';
+      } else {
+        btns[1].classList.add('active');
+        document.getElementById('height-metric').style.display = 'none';
+        document.getElementById('height-imperial').style.display = '';
+        // Sync cm → ft/in
+        const cm = parseInt(document.getElementById('height').value);
+        const totalIn = Math.round(cm / 2.54);
+        document.getElementById('height-ft').value = Math.floor(totalIn / 12);
+        document.getElementById('height-in').value = totalIn % 12;
+        updateImperialHeightDisplay();
+      }
+    }
+
+    function updateImperialHeightDisplay() {
+      const ft = parseInt(document.getElementById('height-ft').value);
+      const inches = parseInt(document.getElementById('height-in').value);
+      document.getElementById('height-display-imp').textContent = `${ft}'${inches}"`;
+      // Sync back to cm slider
+      const cm = Math.round((ft * 12 + inches) * 2.54);
+      document.getElementById('height').value = Math.min(210, Math.max(120, cm));
+    }
+
+    // Shoe size conversion tables (approximate)
+    function usToEu(us) { return Math.round((us + 31.5) * 2) / 2; }
+    function euToUs(eu) { return Math.round((eu - 31.5) * 2) / 2; }
+    function usToUk(us) { return us - 0.5; }
+    function ukToUs(uk) { return uk + 0.5; }
+
+    function setShoeUnit(unit) {
+      // Convert current value to US first
+      const currentSlider = parseFloat(document.getElementById('shoe').value);
+      let currentUS;
+      if (shoeUnit === 'us') currentUS = currentSlider;
+      else if (shoeUnit === 'eu') currentUS = euToUs(currentSlider);
+      else currentUS = ukToUs(currentSlider);
+
+      shoeUnit = unit;
+      const btns = document.querySelectorAll('#shoe-unit-toggle button');
+      btns.forEach(b => b.classList.remove('active'));
+      const slider = document.getElementById('shoe');
+      const labels = document.getElementById('shoe-range-labels');
+
+      if (unit === 'us') {
+        btns[0].classList.add('active');
+        slider.min = 5; slider.max = 15; slider.step = 0.5;
+        slider.value = currentUS;
+        labels.innerHTML = '<span>US 5</span><span>US 15</span>';
+      } else if (unit === 'eu') {
+        btns[1].classList.add('active');
+        slider.min = 36; slider.max = 50; slider.step = 0.5;
+        slider.value = usToEu(currentUS);
+        labels.innerHTML = '<span>EU 36</span><span>EU 50</span>';
+      } else {
+        btns[2].classList.add('active');
+        slider.min = 4.5; slider.max = 14.5; slider.step = 0.5;
+        slider.value = usToUk(currentUS);
+        labels.innerHTML = '<span>UK 4.5</span><span>UK 14.5</span>';
+      }
+      updateShoeDisplay();
+    }
+
+    function updateShoeDisplay() {
+      const v = parseFloat(document.getElementById('shoe').value);
+      const prefix = shoeUnit.toUpperCase();
+      document.getElementById('shoe-display').textContent = `${prefix} ${v}`;
+    }
+
+    function getHeightCm() {
+      if (heightUnit === 'metric') return parseInt(document.getElementById('height').value);
+      const ft = parseInt(document.getElementById('height-ft').value);
+      const inches = parseInt(document.getElementById('height-in').value);
+      return Math.round((ft * 12 + inches) * 2.54);
+    }
+
+    function getShoeUS() {
+      const v = parseFloat(document.getElementById('shoe').value);
+      if (shoeUnit === 'us') return v;
+      if (shoeUnit === 'eu') return euToUs(v);
+      return ukToUs(v);
+    }
+
+    document.getElementById('height-ft').addEventListener('input', updateImperialHeightDisplay);
+    document.getElementById('height-in').addEventListener('input', updateImperialHeightDisplay);
+
     document.getElementById('height').addEventListener('input', e => {
       const cm = e.target.value;
-      const inches = Math.round(cm / 2.54);
-      const ft = Math.floor(inches / 12);
-      const remaining = inches % 12;
-      document.getElementById('height-display').textContent = `${cm} cm (${ft}'${remaining}")`;
+      document.getElementById('height-display').textContent = `${cm} cm`;
     });
 
-    document.getElementById('shoe').addEventListener('input', e => {
-      document.getElementById('shoe-display').textContent = `US ${e.target.value}`;
-    });
+    document.getElementById('shoe').addEventListener('input', updateShoeDisplay);
 
     function showResults() {
-      const height = parseInt(document.getElementById('height').value);
-      const shoe = parseFloat(document.getElementById('shoe').value);
+      const height = getHeightCm();
+      const shoe = getShoeUS();
       const style = selectedStyle;
       const level = selectedLevel || 'intermediate';
 
@@ -353,11 +474,22 @@
       };
 
       // Show summary
+      // Format height/shoe for summary
+      let heightLabel;
+      if (heightUnit === 'metric') {
+        heightLabel = `${height} cm`;
+      } else {
+        const totalIn = Math.round(height / 2.54);
+        heightLabel = `${Math.floor(totalIn/12)}'${totalIn%12}"`;
+      }
+      const shoeVal = parseFloat(document.getElementById('shoe').value);
+      const shoeLabel = `${shoeUnit.toUpperCase()} ${shoeVal}`;
+
       document.getElementById('summary-bar').innerHTML = `
         <div class="tag">${style.icon} <strong>${style.name}</strong></div>
         <div class="tag">${levelConfig[level].label === 'Beginner' ? '🌱' : level === 'pro' ? '🏆' : '🔥'} <strong>${lc.label}</strong></div>
-        <div class="tag">📏 <strong>${height} cm</strong></div>
-        <div class="tag">👟 <strong>US ${shoe}</strong></div>
+        <div class="tag">📏 <strong>${heightLabel}</strong></div>
+        <div class="tag">👟 <strong>${shoeLabel}</strong></div>
       `;
 
       // Render results
