@@ -95,6 +95,14 @@
     .result-card .reason { color: var(--text-dim); font-size: 0.9rem; margin-top: 8px; }
     .result-card .alternatives { margin-top: 12px; padding-top: 12px; border-top: 1px solid #333; }
     .result-card .alternatives span { display: inline-block; background: var(--surface2); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; margin: 2px 4px 2px 0; }
+    .result-card .price { color: var(--green); font-size: 1rem; font-weight: 600; margin-top: 6px; }
+    .result-card .buy-link { display: inline-block; margin-top: 10px; padding: 8px 18px; background: var(--accent); color: white; text-decoration: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
+    .result-card .buy-link:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .result-card .brand-links { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .result-card .brand-links a { display: inline-block; padding: 6px 14px; background: var(--surface2); color: var(--accent); text-decoration: none; border-radius: 8px; font-size: 0.85rem; font-weight: 500; border: 1px solid var(--accent); transition: all 0.2s; }
+    .result-card .brand-links a:hover { background: var(--accent); color: white; }
+    .total-card { background: linear-gradient(135deg, var(--surface2), var(--surface)); border: 1px solid var(--accent); }
+    .total-card .rec { font-size: 1.8rem; }
     .progress { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; }
     .progress .dot {
       width: 12px; height: 12px;
@@ -356,30 +364,52 @@
       const altDecks = deckScores.slice(1, 4).map(d => d.label);
       const altWheels = wheelScores.slice(1, 3).map(w => `${w.diameter}mm ${w.durometer}`);
 
+      // Calculate total price range
+      const totalLow = (bestDeck.priceRange?.[0] || 50) + (bestTruck.priceRange?.[0] || 45) * 2 + (bestWheel.priceRange?.[0] || 28) + (bestBearing.priceRange?.[0] || 12);
+      const totalHigh = (bestDeck.priceRange?.[1] || 80) + (bestTruck.priceRange?.[1] || 70) * 2 + (bestWheel.priceRange?.[1] || 45) + (bestBearing.priceRange?.[1] || 22);
+
+      // Truck brand links
+      const truckBrandLinks = bestTruck.brands.map(b => {
+        const url = bestTruck.buyLinks?.[b] || 'https://www.tactics.com/skateboard-trucks';
+        return `<a href="${url}" target="_blank" rel="noopener">${b}</a>`;
+      }).join('');
+
       document.getElementById('results').innerHTML = `
         ${levelTips[level] ? `<div class="result-card" style="border-left:3px solid var(--accent);"><p>${levelTips[level]}</p></div>` : ''}
         <div class="result-card">
           <h3>📐 Deck Width</h3>
           <div class="rec">${bestDeck.label}</div>
+          <div class="price">$${bestDeck.priceRange?.[0] || 50} – $${bestDeck.priceRange?.[1] || 80}</div>
           <div class="reason">Best for ${bestDeck.bestFor.join(', ')} skating at your height and shoe size.</div>
           <div class="alternatives">Also consider: ${altDecks.map(a => `<span>${a}</span>`).join('')}</div>
+          <a class="buy-link" href="${gearData.deckBuyLinks?.default || 'https://www.tactics.com/skateboard-decks'}?width=${bestDeck.label.replace('"','')}" target="_blank" rel="noopener">🛒 Shop ${bestDeck.label} Decks</a>
         </div>
         <div class="result-card">
           <h3>🔧 Trucks</h3>
           <div class="rec">${bestTruck.axle}mm axle (${bestTruck.width} hanger)</div>
+          <div class="price">$${bestTruck.priceRange?.[0] || 45} – $${bestTruck.priceRange?.[1] || 70} each (need pair)</div>
           <div class="reason">Matched to your deck width. Trucks should be ±0.25" of deck width.</div>
-          <div class="alternatives">Popular picks: ${bestTruck.brands.map(b => `<span>${b}</span>`).join('')}</div>
+          <div class="brand-links">${truckBrandLinks}</div>
         </div>
         <div class="result-card">
           <h3>⚙️ Wheels</h3>
           <div class="rec">${bestWheel.diameter}mm ${bestWheel.durometer} (${bestWheel.type})</div>
+          <div class="price">$${bestWheel.priceRange?.[0] || 28} – $${bestWheel.priceRange?.[1] || 45} (set of 4)</div>
           <div class="reason">${bestWheel.description}</div>
           <div class="alternatives">Also try: ${altWheels.map(w => `<span>${w}</span>`).join('')}</div>
+          <a class="buy-link" href="${bestWheel.buyLink || 'https://www.tactics.com/skateboard-wheels'}" target="_blank" rel="noopener">🛒 Shop ${bestWheel.diameter}mm Wheels</a>
         </div>
         <div class="result-card">
           <h3>🔩 Bearings</h3>
           <div class="rec">${bestBearing.rating}</div>
+          <div class="price">$${bestBearing.priceRange?.[0] || 12} – $${bestBearing.priceRange?.[1] || 22} (set of 8)</div>
           <div class="reason">${bestBearing.description}</div>
+          <a class="buy-link" href="${bestBearing.buyLink || 'https://www.tactics.com/skateboard-bearings'}" target="_blank" rel="noopener">🛒 Shop Bearings</a>
+        </div>
+        <div class="result-card total-card">
+          <h3>💰 Estimated Total</h3>
+          <div class="rec">$${totalLow} – $${totalHigh}</div>
+          <div class="reason">Complete setup estimate (deck + 2 trucks + wheels + bearings). Grip tape, hardware, and shipping not included.</div>
         </div>
       `;
 

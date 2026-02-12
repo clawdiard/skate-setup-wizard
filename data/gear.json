@@ -1,35 +1,38 @@
 {
   "deckSizes": [
-    {"width": 7.5, "label": "7.5\"", "bestFor": ["kids", "street"], "heightRange": [0, 160], "shoeRange": [0, 8]},
-    {"width": 7.75, "label": "7.75\"", "bestFor": ["street", "technical"], "heightRange": [150, 170], "shoeRange": [7, 9]},
-    {"width": 8.0, "label": "8.0\"", "bestFor": ["street", "park", "all-around"], "heightRange": [160, 180], "shoeRange": [8, 10]},
-    {"width": 8.125, "label": "8.125\"", "bestFor": ["street", "park", "transition"], "heightRange": [165, 185], "shoeRange": [9, 11]},
-    {"width": 8.25, "label": "8.25\"", "bestFor": ["park", "transition", "bowl"], "heightRange": [170, 190], "shoeRange": [9, 11]},
-    {"width": 8.5, "label": "8.5\"", "bestFor": ["transition", "bowl", "vert", "cruising"], "heightRange": [175, 200], "shoeRange": [10, 13]},
-    {"width": 8.75, "label": "8.75\"", "bestFor": ["bowl", "vert", "pool"], "heightRange": [180, 210], "shoeRange": [11, 14]},
-    {"width": 9.0, "label": "9.0+\"", "bestFor": ["vert", "pool", "cruising"], "heightRange": [185, 220], "shoeRange": [11, 15]}
+    {"width": 7.5, "label": "7.5\"", "bestFor": ["kids", "street"], "heightRange": [0, 160], "shoeRange": [0, 8], "priceRange": [40, 70]},
+    {"width": 7.75, "label": "7.75\"", "bestFor": ["street", "technical"], "heightRange": [150, 170], "shoeRange": [7, 9], "priceRange": [45, 75]},
+    {"width": 8.0, "label": "8.0\"", "bestFor": ["street", "park", "all-around"], "heightRange": [160, 180], "shoeRange": [8, 10], "priceRange": [50, 80]},
+    {"width": 8.125, "label": "8.125\"", "bestFor": ["street", "park", "transition"], "heightRange": [165, 185], "shoeRange": [9, 11], "priceRange": [50, 80]},
+    {"width": 8.25, "label": "8.25\"", "bestFor": ["park", "transition", "bowl"], "heightRange": [170, 190], "shoeRange": [9, 11], "priceRange": [50, 85]},
+    {"width": 8.5, "label": "8.5\"", "bestFor": ["transition", "bowl", "vert", "cruising"], "heightRange": [175, 200], "shoeRange": [10, 13], "priceRange": [50, 85]},
+    {"width": 8.75, "label": "8.75\"", "bestFor": ["bowl", "vert", "pool"], "heightRange": [180, 210], "shoeRange": [11, 14], "priceRange": [55, 90]},
+    {"width": 9.0, "label": "9.0+\"", "bestFor": ["vert", "pool", "cruising"], "heightRange": [185, 220], "shoeRange": [11, 15], "priceRange": [55, 90]}
   ],
   "trucks": [
-    {"width": "7.6\"", "axle": 129, "matchDeck": [7.25, 7.75], "brands": ["Independent 129", "Thunder 145", "Venture 5.0"]},
-    {"width": "8.0\"", "axle": 139, "matchDeck": [7.75, 8.25], "brands": ["Independent 139", "Thunder 147", "Venture 5.2"]},
-    {"width": "8.5\"", "axle": 149, "matchDeck": [8.25, 8.75], "brands": ["Independent 149", "Thunder 148", "Venture 5.8"]},
-    {"width": "9.0\"", "axle": 159, "matchDeck": [8.75, 9.25], "brands": ["Independent 159", "Thunder 151", "Venture 6.1"]}
+    {"width": "7.6\"", "axle": 129, "matchDeck": [7.25, 7.75], "brands": ["Independent 129", "Thunder 145", "Venture 5.0"], "priceRange": [45, 65], "buyLinks": {"Independent 129": "https://www.tactics.com/independent/stage-11-standard-skateboard-trucks", "Thunder 145": "https://www.tactics.com/thunder/team-edition-skateboard-trucks", "Venture 5.0": "https://www.tactics.com/venture/all-team-skateboard-trucks"}},
+    {"width": "8.0\"", "axle": 139, "matchDeck": [7.75, 8.25], "brands": ["Independent 139", "Thunder 147", "Venture 5.2"], "priceRange": [45, 70], "buyLinks": {"Independent 139": "https://www.tactics.com/independent/stage-11-standard-skateboard-trucks", "Thunder 147": "https://www.tactics.com/thunder/team-edition-skateboard-trucks", "Venture 5.2": "https://www.tactics.com/venture/all-team-skateboard-trucks"}},
+    {"width": "8.5\"", "axle": 149, "matchDeck": [8.25, 8.75], "brands": ["Independent 149", "Thunder 148", "Venture 5.8"], "priceRange": [50, 70], "buyLinks": {"Independent 149": "https://www.tactics.com/independent/stage-11-standard-skateboard-trucks", "Thunder 148": "https://www.tactics.com/thunder/team-edition-skateboard-trucks", "Venture 5.8": "https://www.tactics.com/venture/all-team-skateboard-trucks"}},
+    {"width": "9.0\"", "axle": 159, "matchDeck": [8.75, 9.25], "brands": ["Independent 159", "Thunder 151", "Venture 6.1"], "priceRange": [50, 75], "buyLinks": {"Independent 159": "https://www.tactics.com/independent/stage-11-standard-skateboard-trucks", "Thunder 151": "https://www.tactics.com/thunder/team-edition-skateboard-trucks", "Venture 6.1": "https://www.tactics.com/venture/all-team-skateboard-trucks"}}
   ],
   "wheels": [
-    {"diameter": 50, "durometer": "99a", "type": "Street", "description": "Small & hard — technical street skating, flatground tricks"},
-    {"diameter": 52, "durometer": "99a", "type": "Street/Park", "description": "Versatile street/park size, good all-around choice"},
-    {"diameter": 54, "durometer": "99a", "type": "Park/Bowl", "description": "Great for parks and smooth surfaces, carries speed"},
-    {"diameter": 56, "durometer": "97a", "type": "Transition", "description": "Bowl and transition skating, fast with good grip"},
-    {"diameter": 58, "durometer": "95a", "type": "Vert/Pool", "description": "Vert and pool skating, maximum speed"},
-    {"diameter": 54, "durometer": "86a", "type": "Cruiser (Soft)", "description": "Soft cruiser wheels for rough surfaces and commuting"},
-    {"diameter": 60, "durometer": "78a", "type": "Cruiser/Longboard", "description": "Maximum comfort on rough terrain, smooth ride"}
+    {"diameter": 50, "durometer": "99a", "type": "Street", "description": "Small & hard — technical street skating, flatground tricks", "priceRange": [25, 40], "buyLink": "https://www.tactics.com/skateboard-wheels?diameter=50mm"},
+    {"diameter": 52, "durometer": "99a", "type": "Street/Park", "description": "Versatile street/park size, good all-around choice", "priceRange": [28, 45], "buyLink": "https://www.tactics.com/skateboard-wheels?diameter=52mm"},
+    {"diameter": 54, "durometer": "99a", "type": "Park/Bowl", "description": "Great for parks and smooth surfaces, carries speed", "priceRange": [28, 45], "buyLink": "https://www.tactics.com/skateboard-wheels?diameter=54mm"},
+    {"diameter": 56, "durometer": "97a", "type": "Transition", "description": "Bowl and transition skating, fast with good grip", "priceRange": [30, 48], "buyLink": "https://www.tactics.com/skateboard-wheels?diameter=56mm"},
+    {"diameter": 58, "durometer": "95a", "type": "Vert/Pool", "description": "Vert and pool skating, maximum speed", "priceRange": [30, 50], "buyLink": "https://www.tactics.com/skateboard-wheels?diameter=58mm"},
+    {"diameter": 54, "durometer": "86a", "type": "Cruiser (Soft)", "description": "Soft cruiser wheels for rough surfaces and commuting", "priceRange": [28, 42], "buyLink": "https://www.tactics.com/skateboard-wheels?durometer=78a-87a"},
+    {"diameter": 60, "durometer": "78a", "type": "Cruiser/Longboard", "description": "Maximum comfort on rough terrain, smooth ride", "priceRange": [30, 50], "buyLink": "https://www.tactics.com/skateboard-wheels?durometer=78a-87a"}
   ],
   "bearings": [
-    {"rating": "ABEC 3", "level": "Budget", "description": "Good for beginners, affordable and reliable"},
-    {"rating": "ABEC 5", "level": "Standard", "description": "Most popular choice, great balance of speed and durability"},
-    {"rating": "ABEC 7", "level": "Performance", "description": "Faster spin, good for experienced skaters"},
-    {"rating": "Swiss", "level": "Premium", "description": "Top-tier precision, used by pros. Worth the investment."}
+    {"rating": "ABEC 3", "level": "Budget", "description": "Good for beginners, affordable and reliable", "priceRange": [8, 15], "buyLink": "https://www.tactics.com/skateboard-bearings"},
+    {"rating": "ABEC 5", "level": "Standard", "description": "Most popular choice, great balance of speed and durability", "priceRange": [12, 22], "buyLink": "https://www.tactics.com/skateboard-bearings"},
+    {"rating": "ABEC 7", "level": "Performance", "description": "Faster spin, good for experienced skaters", "priceRange": [18, 35], "buyLink": "https://www.tactics.com/skateboard-bearings"},
+    {"rating": "Swiss", "level": "Premium", "description": "Top-tier precision, used by pros. Worth the investment.", "priceRange": [50, 100], "buyLink": "https://www.tactics.com/bones-bearings/swiss-skateboard-bearings"}
   ],
+  "deckBuyLinks": {
+    "default": "https://www.tactics.com/skateboard-decks"
+  },
   "styles": [
     {"id": "street", "name": "Street", "icon": "🏙️", "description": "Ledges, stairs, rails, flatground tricks", "preferDeck": [7.75, 8.125], "preferWheel": [50, 53], "preferBearing": "ABEC 5"},
     {"id": "park", "name": "Park", "icon": "🛹", "description": "Skateparks, ramps, quarterpipes", "preferDeck": [8.0, 8.375], "preferWheel": [52, 56], "preferBearing": "ABEC 5"},
