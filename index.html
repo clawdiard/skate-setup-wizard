@@ -98,6 +98,11 @@
     .result-card .price { color: var(--green); font-size: 1rem; font-weight: 600; margin-top: 6px; }
     .result-card .buy-link { display: inline-block; margin-top: 10px; padding: 8px 18px; background: var(--accent); color: white; text-decoration: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; }
     .result-card .buy-link:hover { filter: brightness(1.15); transform: translateY(-1px); }
+    .share-bar { text-align: center; margin: 24px 0; }
+    .share-url-box { display: flex; gap: 8px; align-items: center; max-width: 520px; margin: 12px auto 0; }
+    .share-url-box input { flex: 1; background: var(--surface); border: 1px solid #333; color: var(--text); padding: 10px 14px; border-radius: var(--radius); font-size: 0.9rem; }
+    .share-url-box button { white-space: nowrap; }
+    .copy-toast { display: none; color: var(--green); font-size: 0.9rem; margin-top: 8px; }
     .result-card .brand-links { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; }
     .result-card .brand-links a { display: inline-block; padding: 6px 14px; background: var(--surface2); color: var(--accent); text-decoration: none; border-radius: 8px; font-size: 0.85rem; font-weight: 500; border: 1px solid var(--accent); transition: all 0.2s; }
     .result-card .brand-links a:hover { background: var(--accent); color: white; }
@@ -247,6 +252,14 @@
       <h2>Your Recommended Setup</h2>
       <div class="summary-bar" id="summary-bar"></div>
       <div class="results" id="results"></div>
+      <div class="share-bar" id="share-bar" style="display:none;">
+        <button class="btn btn-primary" onclick="copyShareUrl()">📋 Share My Setup</button>
+        <div class="share-url-box" id="share-url-box" style="display:none;">
+          <input type="text" id="share-url" readonly>
+          <button class="btn btn-secondary" onclick="copyShareUrl()">Copy</button>
+        </div>
+        <div class="copy-toast" id="copy-toast">✅ Link copied to clipboard!</div>
+      </div>
       <div class="btn-row restart-btn">
         <button class="btn btn-secondary" onclick="restart()">Start Over</button>
       </div>
@@ -274,6 +287,7 @@
     fetch('data/gear.json').then(r => r.json()).then(d => {
       gearData = d;
       renderStyleOptions();
+      restoreFromUrl();
     });
 
     function renderStyleOptions() {
@@ -549,6 +563,7 @@
       currentStep = 4;
       document.getElementById('step-4').classList.add('active');
       updateProgress();
+      document.getElementById('share-bar').style.display = '';
     }
 
     function restart() {
@@ -563,6 +578,80 @@
       currentStep = 0;
       document.getElementById('step-0').classList.add('active');
       updateProgress();
+      document.getElementById('share-bar').style.display = 'none';
+      document.getElementById('share-url-box').style.display = 'none';
+      document.getElementById('copy-toast').style.display = 'none';
+      history.replaceState(null, '', location.pathname);
+    }
+
+    function buildShareUrl() {
+      const p = new URLSearchParams();
+      p.set('style', selectedStyle.name.toLowerCase().replace(/\s+/g, '-'));
+      p.set('level', selectedLevel || 'intermediate');
+      p.set('height', getHeightCm());
+      p.set('shoe', getShoeUS());
+      p.set('hu', heightUnit === 'imperial' ? 'imp' : 'met');
+      p.set('su', shoeUnit);
+      return location.origin + location.pathname + '?' + p.toString();
+    }
+
+    function copyShareUrl() {
+      const url = buildShareUrl();
+      const box = document.getElementById('share-url-box');
+      const input = document.getElementById('share-url');
+      const toast = document.getElementById('copy-toast');
+      input.value = url;
+      box.style.display = 'flex';
+      history.replaceState(null, '', '?' + new URLSearchParams(new URL(url).search).toString());
+      navigator.clipboard.writeText(url).then(() => {
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 3000);
+      }).catch(() => {
+        input.select();
+      });
+    }
+
+    // Restore from URL params on load
+    function restoreFromUrl() {
+      const p = new URLSearchParams(location.search);
+      if (!p.has('style') || !gearData) return;
+      const styleName = p.get('style');
+      const match = gearData.styles.find(s => s.name.toLowerCase().replace(/\s+/g, '-') === styleName);
+      if (!match) return;
+
+      // Restore selections
+      selectedStyle = match;
+      selectedLevel = p.get('level') || 'intermediate';
+      const heightCm = parseInt(p.get('height')) || 170;
+      const shoeUS = parseFloat(p.get('shoe')) || 9;
+      const hu = p.get('hu');
+      const su = p.get('su') || 'us';
+
+      // Set height
+      document.getElementById('height').value = heightCm;
+      document.getElementById('height-display').textContent = `${heightCm} cm`;
+      if (hu === 'imp') setHeightUnit('imperial');
+
+      // Set shoe
+      document.getElementById('shoe').value = shoeUS;
+      shoeUnit = 'us';
+      updateShoeDisplay();
+      if (su !== 'us') setShoeUnit(su);
+
+      // Highlight style option
+      setTimeout(() => {
+        const opts = document.querySelectorAll('#style-options .option');
+        opts.forEach(o => {
+          if (o.querySelector('.label')?.textContent === match.name) o.classList.add('selected');
+        });
+        // Highlight level
+        document.querySelectorAll('#level-options .option').forEach(o => {
+          if (o.getAttribute('onclick')?.includes(selectedLevel)) o.classList.add('selected');
+        });
+      }, 50);
+
+      // Jump to results
+      showResults();
     }
   </script>
 </body>
