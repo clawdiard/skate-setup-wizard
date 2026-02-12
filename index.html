@@ -132,6 +132,30 @@
     footer { text-align: center; padding: 40px 0 24px; color: var(--text-dim); font-size: 0.85rem; }
     footer a { color: var(--accent); text-decoration: none; }
     .restart-btn { margin-top: 24px; }
+    /* Comparison mode */
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .compare-grid .compare-col { min-width: 0; }
+    .compare-col h3 { text-align: center; font-size: 1.1rem; margin-bottom: 12px; padding: 10px; background: var(--surface2); border-radius: var(--radius); }
+    .compare-col h3.setup-a { border-bottom: 3px solid var(--accent); }
+    .compare-col h3.setup-b { border-bottom: 3px solid var(--green); }
+    .compare-row { display: contents; }
+    .compare-cell {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .compare-cell .cat { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .compare-cell .val { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .compare-cell .val.green { color: var(--green); }
+    .compare-cell .detail { font-size: 0.8rem; color: var(--text-dim); margin-top: 4px; }
+    .compare-cell .price { color: var(--green); font-size: 0.85rem; font-weight: 600; }
+    .compare-diff { background: rgba(233, 69, 96, 0.1); border: 1px solid rgba(233, 69, 96, 0.3); }
+    .compare-same { opacity: 0.7; }
+    @media (max-width: 500px) {
+      .compare-grid { grid-template-columns: 1fr; }
+      .compare-col h3 { position: sticky; top: 0; z-index: 1; }
+    }
     .unit-toggle { display: flex; justify-content: center; gap: 0; margin-bottom: 16px; border-radius: var(--radius); overflow: hidden; border: 2px solid var(--accent); width: fit-content; margin-left: auto; margin-right: auto; }
     .unit-toggle button { padding: 8px 20px; border: none; background: var(--surface); color: var(--text-dim); font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .unit-toggle button.active { background: var(--accent); color: white; }
@@ -150,6 +174,7 @@
       <div class="dot" data-step="2"></div>
       <div class="dot" data-step="3"></div>
       <div class="dot" data-step="4"></div>
+      <div class="dot" data-step="5" style="display:none;" id="compare-dot"></div>
     </div>
 
     <!-- Step 0: Style -->
@@ -260,6 +285,17 @@
         </div>
         <div class="copy-toast" id="copy-toast">✅ Link copied to clipboard!</div>
       </div>
+      <div class="btn-row restart-btn">
+        <button class="btn btn-primary" onclick="startCompare()" id="compare-btn">⚖️ Compare With Another Setup</button>
+        <button class="btn btn-secondary" onclick="restart()">Start Over</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Comparison View -->
+    <div class="step" id="step-5">
+      <h2>⚖️ Setup Comparison</h2>
+      <div id="compare-summary" class="summary-bar" style="justify-content:center;gap:24px;"></div>
+      <div class="compare-grid" id="compare-grid"></div>
       <div class="btn-row restart-btn">
         <button class="btn btn-secondary" onclick="restart()">Start Over</button>
       </div>
@@ -652,6 +688,155 @@
 
       // Jump to results
       showResults();
+    }
+
+    // ── Comparison Mode ──
+    let savedSetupA = null;
+    let compareMode = false;
+
+    function captureCurrentSetup() {
+      const height = getHeightCm();
+      const shoe = getShoeUS();
+      const style = selectedStyle;
+      const level = selectedLevel || 'intermediate';
+      const result = computeSetup(style, level, height, shoe);
+      return {
+        style, level, height, shoe,
+        heightLabel: heightUnit === 'metric' ? `${height} cm` : (() => { const t = Math.round(height/2.54); return `${Math.floor(t/12)}'${t%12}"`; })(),
+        shoeLabel: `${shoeUnit.toUpperCase()} ${parseFloat(document.getElementById('shoe').value)}`,
+        ...result
+      };
+    }
+
+    function computeSetup(style, level, height, shoe) {
+      const levelConfig = {
+        beginner:     { deckBias: 0.125, wheelBias: 2, bearingPref: 'ABEC 3', wheelSoft: true, label: 'Beginner' },
+        intermediate: { deckBias: 0, wheelBias: 0, bearingPref: null, wheelSoft: false, label: 'Intermediate' },
+        pro:          { deckBias: 0, wheelBias: -1, bearingPref: 'Swiss', wheelSoft: false, label: 'Pro / Advanced' }
+      };
+      const lc = levelConfig[level];
+
+      const deckScores = gearData.deckSizes.map(d => {
+        let score = 0;
+        if (style.preferDeck) {
+          style.preferDeck.forEach(p => { score -= Math.abs(d.width - (p + lc.deckBias)) * 2; });
+        }
+        if (height >= d.heightRange[0] && height <= d.heightRange[1]) score += 3;
+        if (shoe >= d.shoeRange[0] && shoe <= d.shoeRange[1]) score += 3;
+        return { ...d, score };
+      });
+      deckScores.sort((a, b) => b.score - a.score);
+      const deck = deckScores[0];
+
+      const truck = gearData.trucks.find(t => deck.width >= t.matchDeck[0] && deck.width <= t.matchDeck[1]) || gearData.trucks[1];
+
+      const targetDiameter = (style.preferWheel[0] + style.preferWheel[1]) / 2 + lc.wheelBias;
+      const wheelScores = gearData.wheels.map(w => {
+        let score = 0;
+        score -= Math.abs(w.diameter - targetDiameter) * 0.5;
+        if (w.diameter >= style.preferWheel[0] && w.diameter <= style.preferWheel[1]) score += 3;
+        if (lc.wheelSoft && w.durometer.match(/[78-90]a/) && parseInt(w.durometer) < 90) score += 2;
+        return { ...w, score };
+      });
+      wheelScores.sort((a, b) => b.score - a.score);
+      const wheel = wheelScores[0];
+
+      let bearing;
+      if (lc.bearingPref) {
+        bearing = gearData.bearings.find(b => b.rating === lc.bearingPref) || gearData.bearings[1];
+      } else {
+        bearing = gearData.bearings.find(b => b.rating === style.preferBearing) || gearData.bearings[1];
+      }
+
+      const totalLow = (deck.priceRange?.[0]||50) + (truck.priceRange?.[0]||45)*2 + (wheel.priceRange?.[0]||28) + (bearing.priceRange?.[0]||12);
+      const totalHigh = (deck.priceRange?.[1]||80) + (truck.priceRange?.[1]||70)*2 + (wheel.priceRange?.[1]||45) + (bearing.priceRange?.[1]||22);
+
+      return { deck, truck, wheel, bearing, totalLow, totalHigh, levelLabel: lc.label };
+    }
+
+    function startCompare() {
+      savedSetupA = captureCurrentSetup();
+      compareMode = true;
+      document.getElementById('compare-btn').style.display = 'none';
+      // Reset wizard for setup B
+      selectedStyle = null;
+      selectedLevel = null;
+      document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+      document.getElementById('height').value = 170;
+      document.getElementById('height-display').textContent = '170 cm';
+      document.getElementById('shoe').value = 9;
+      document.getElementById('shoe-display').textContent = 'US 9';
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      currentStep = 0;
+      document.getElementById('step-0').classList.add('active');
+      updateProgress();
+      // Show banner
+      const header = document.querySelector('header p');
+      header.innerHTML = '⚖️ Now configure <strong>Setup B</strong> to compare';
+      header.style.color = 'var(--green)';
+    }
+
+    // Hook into showResults to intercept compare mode
+    const _origShowResults = showResults;
+
+    showResults = function() {
+      if (!compareMode) { _origShowResults(); return; }
+      // Capture setup B and show comparison
+      const setupB = captureCurrentSetup();
+      compareMode = false;
+      document.querySelector('header p').innerHTML = 'Answer 4 quick questions — get your perfect setup';
+      document.querySelector('header p').style.color = '';
+      renderComparison(savedSetupA, setupB);
+    };
+
+    function renderComparison(a, b) {
+      document.getElementById('compare-dot').style.display = '';
+      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      currentStep = 5;
+      document.getElementById('step-5').classList.add('active');
+      updateProgress();
+
+      // Summary
+      document.getElementById('compare-summary').innerHTML = `
+        <div class="tag" style="color:var(--accent);font-weight:700;">${a.style.icon} Setup A: ${a.style.name}</div>
+        <div class="tag" style="font-weight:400;color:var(--text-dim);">vs</div>
+        <div class="tag" style="color:var(--green);font-weight:700;">${b.style.icon} Setup B: ${b.style.name}</div>
+      `;
+
+      const rows = [
+        { cat: 'Style', a: `${a.style.icon} ${a.style.name}`, b: `${b.style.icon} ${b.style.name}`, key: s => s.style.id },
+        { cat: 'Level', a: a.levelLabel, b: b.levelLabel, key: s => s.level },
+        { cat: 'Height', a: a.heightLabel, b: b.heightLabel, key: s => s.height },
+        { cat: 'Shoe', a: a.shoeLabel, b: b.shoeLabel, key: s => s.shoe },
+        { cat: '📐 Deck', a: a.deck.label, b: b.deck.label, key: s => s.deck.width, priceA: a.deck.priceRange, priceB: b.deck.priceRange },
+        { cat: '🔧 Trucks', a: `${a.truck.axle}mm (${a.truck.width})`, b: `${b.truck.axle}mm (${b.truck.width})`, key: s => s.truck.axle, priceA: a.truck.priceRange, priceB: b.truck.priceRange, pairNote: '×2' },
+        { cat: '⚙️ Wheels', a: `${a.wheel.diameter}mm ${a.wheel.durometer}`, b: `${b.wheel.diameter}mm ${b.wheel.durometer}`, key: s => s.wheel.diameter + s.wheel.durometer, priceA: a.wheel.priceRange, priceB: b.wheel.priceRange },
+        { cat: '🔩 Bearings', a: a.bearing.rating, b: b.bearing.rating, key: s => s.bearing.rating, priceA: a.bearing.priceRange, priceB: b.bearing.priceRange },
+        { cat: '💰 Total', a: `$${a.totalLow}–$${a.totalHigh}`, b: `$${b.totalLow}–$${b.totalHigh}`, key: s => s.totalLow }
+      ];
+
+      let html = `<div class="compare-col"><h3 class="setup-a">${a.style.icon} Setup A</h3>`;
+      rows.forEach(r => {
+        const diff = r.key(a) !== r.key(b);
+        html += `<div class="compare-cell ${diff ? 'compare-diff' : 'compare-same'}">
+          <div class="cat">${r.cat}</div>
+          <div class="val">${r.a}</div>
+          ${r.priceA ? `<div class="price">$${r.priceA[0]}–$${r.priceA[1]}${r.pairNote ? ' '+r.pairNote : ''}</div>` : ''}
+        </div>`;
+      });
+      html += '</div><div class="compare-col"><h3 class="setup-b">${b.style.icon} Setup B</h3>';
+      // Fix: use template literal properly
+      html = html.replace('${b.style.icon}', b.style.icon);
+      rows.forEach(r => {
+        const diff = r.key(a) !== r.key(b);
+        html += `<div class="compare-cell ${diff ? 'compare-diff' : 'compare-same'}">
+          <div class="cat">${r.cat}</div>
+          <div class="val green">${r.b}</div>
+          ${r.priceB ? `<div class="price">$${r.priceB[0]}–$${r.priceB[1]}${r.pairNote ? ' '+r.pairNote : ''}</div>` : ''}
+        </div>`;
+      });
+      html += '</div>';
+      document.getElementById('compare-grid').innerHTML = html;
     }
   </script>
 </body>
