@@ -803,6 +803,13 @@
       renderComparison(savedSetupA, setupB);
     };
 
+    function formatHeightBoth(cm) {
+      const totalIn = Math.round(cm / 2.54);
+      const ft = Math.floor(totalIn / 12);
+      const inches = totalIn % 12;
+      return `${cm} cm (${ft}'${inches}")`;
+    }
+
     function renderComparison(a, b) {
       document.getElementById('compare-dot').style.display = '';
       document.getElementById(`step-${currentStep}`).classList.remove('active');
@@ -820,7 +827,7 @@
       const rows = [
         { cat: 'Style', a: `${a.style.icon} ${a.style.name}`, b: `${b.style.icon} ${b.style.name}`, key: s => s.style.id },
         { cat: 'Level', a: a.levelLabel, b: b.levelLabel, key: s => s.level },
-        { cat: 'Height', a: a.heightLabel, b: b.heightLabel, key: s => s.height },
+        { cat: 'Height', a: formatHeightBoth(a.height), b: formatHeightBoth(b.height), key: s => s.height },
         { cat: 'Shoe', a: a.shoeLabel, b: b.shoeLabel, key: s => s.shoe },
         { cat: '📐 Deck', a: a.deck.label, b: b.deck.label, key: s => s.deck.width, priceA: a.deck.priceRange, priceB: b.deck.priceRange },
         { cat: '🔧 Trucks', a: `${a.truck.axle}mm (${a.truck.width})`, b: `${b.truck.axle}mm (${b.truck.width})`, key: s => s.truck.axle, priceA: a.truck.priceRange, priceB: b.truck.priceRange, pairNote: '×2' },
