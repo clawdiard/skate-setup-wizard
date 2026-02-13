@@ -482,7 +482,7 @@
       // Calculate deck — beginners get slightly wider for stability
       const deckScores = gearData.deckSizes.map(d => {
         let score = 0;
-        if (style.bestFor) {
+        if (style.preferDeck) {
           style.preferDeck.forEach(p => { score -= Math.abs(d.width - (p + lc.deckBias)) * 2; });
         }
         if (height >= d.heightRange[0] && height <= d.heightRange[1]) score += 3;
