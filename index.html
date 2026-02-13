@@ -764,8 +764,22 @@
       document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
       document.getElementById('height').value = 170;
       document.getElementById('height-display').textContent = '170 cm';
-      document.getElementById('shoe').value = 9;
+      // Reset shoe unit to US defaults (fix: prevent state leak from Setup A)
+      shoeUnit = 'us';
+      const shoeSlider = document.getElementById('shoe');
+      shoeSlider.min = 5; shoeSlider.max = 15; shoeSlider.step = 0.5; shoeSlider.value = 9;
       document.getElementById('shoe-display').textContent = 'US 9';
+      document.getElementById('shoe-range-labels').innerHTML = '<span>US 5</span><span>US 15</span>';
+      const shoeBtns = document.querySelectorAll('#shoe-unit-toggle button');
+      shoeBtns.forEach(b => b.classList.remove('active'));
+      shoeBtns[0].classList.add('active');
+      // Reset height unit too for clean state
+      heightUnit = 'metric';
+      const htBtns = document.querySelectorAll('#height-unit-toggle button');
+      htBtns.forEach(b => b.classList.remove('active'));
+      htBtns[0].classList.add('active');
+      document.getElementById('height-metric').style.display = '';
+      document.getElementById('height-imperial').style.display = 'none';
       document.getElementById(`step-${currentStep}`).classList.remove('active');
       currentStep = 0;
       document.getElementById('step-0').classList.add('active');
