@@ -184,7 +184,7 @@
       <p>Answer 4 quick questions — get your perfect setup</p>
     </header>
 
-    <div class="progress" id="progress">
+    <div class="progress" id="progress" role="navigation" aria-label="Wizard progress">
       <div class="dot current" data-step="0"></div>
       <div class="dot" data-step="1"></div>
       <div class="dot" data-step="2"></div>
@@ -193,29 +193,31 @@
       <div class="dot" data-step="5" style="display:none;" id="compare-dot"></div>
     </div>
 
+    <div id="step-announce" aria-live="polite" aria-atomic="true" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"></div>
+
     <!-- Step 0: Style -->
-    <div class="step active" id="step-0">
+    <div class="step active" id="step-0" role="region" aria-label="Riding Style">
       <h2>What's your riding style?</h2>
       <p class="hint">Pick the one that describes you best</p>
-      <div class="options" id="style-options"></div>
+      <div class="options" id="style-options" role="radiogroup" aria-label="Riding style"></div>
     </div>
 
     <!-- Step 1: Experience Level -->
-    <div class="step" id="step-1">
+    <div class="step" id="step-1" role="region" aria-label="Experience Level">
       <h2>What's your experience level?</h2>
       <p class="hint">This helps us dial in the right gear for where you're at</p>
-      <div class="options" id="level-options">
-        <div class="option" onclick="selectLevel(this, 'beginner')">
+      <div class="options" id="level-options" role="radiogroup" aria-label="Experience level">
+        <div class="option" role="radio" aria-checked="false" aria-label="Beginner: Just starting out or getting back into it" tabindex="0" onclick="selectLevel(this, 'beginner')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLevel(this,'beginner')}">
           <div class="icon">🌱</div>
           <div class="label">Beginner</div>
           <div class="desc">Just starting out or getting back into it</div>
         </div>
-        <div class="option" onclick="selectLevel(this, 'intermediate')">
+        <div class="option" role="radio" aria-checked="false" aria-label="Intermediate: Comfortable riding, learning new tricks" tabindex="0" onclick="selectLevel(this, 'intermediate')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLevel(this,'intermediate')}">
           <div class="icon">🔥</div>
           <div class="label">Intermediate</div>
           <div class="desc">Comfortable riding, learning new tricks</div>
         </div>
-        <div class="option" onclick="selectLevel(this, 'pro')">
+        <div class="option" role="radio" aria-checked="false" aria-label="Pro / Advanced: Years of experience, pushing limits" tabindex="0" onclick="selectLevel(this, 'pro')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();selectLevel(this,'pro')}">
           <div class="icon">🏆</div>
           <div class="label">Pro / Advanced</div>
           <div class="desc">Years of experience, pushing limits</div>
@@ -227,16 +229,16 @@
     </div>
 
     <!-- Step 2: Height -->
-    <div class="step" id="step-2">
+    <div class="step" id="step-2" role="region" aria-label="Height">
       <h2>How tall are you?</h2>
       <p class="hint">This helps determine your ideal deck width</p>
       <div class="unit-toggle" id="height-unit-toggle">
-        <button class="active" onclick="setHeightUnit('metric')">Metric (cm)</button>
-        <button onclick="setHeightUnit('imperial')">Imperial (ft/in)</button>
+        <button class="active" aria-pressed="true" onclick="setHeightUnit('metric')">Metric (cm)</button>
+        <button aria-pressed="false" onclick="setHeightUnit('imperial')">Imperial (ft/in)</button>
       </div>
       <div class="slider-group" id="height-metric">
         <div class="slider-value" id="height-display">170 cm</div>
-        <input type="range" id="height" min="120" max="210" value="170" step="1">
+        <input type="range" id="height" min="120" max="210" value="170" step="1" aria-label="Height in centimeters" aria-valuetext="170 cm">
         <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
           <span>120 cm</span><span>210 cm</span>
         </div>
@@ -246,14 +248,14 @@
         <div style="display:flex;gap:16px;align-items:center;justify-content:center;">
           <div style="flex:1;">
             <label style="font-size:0.85rem;color:var(--text-dim);margin-bottom:4px;display:block;">Feet</label>
-            <input type="range" id="height-ft" min="3" max="6" value="5" step="1">
+            <input type="range" id="height-ft" min="3" max="6" value="5" step="1" aria-label="Height feet">
             <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
               <span>3'</span><span>6'</span>
             </div>
           </div>
           <div style="flex:1;">
             <label style="font-size:0.85rem;color:var(--text-dim);margin-bottom:4px;display:block;">Inches</label>
-            <input type="range" id="height-in" min="0" max="11" value="7" step="1">
+            <input type="range" id="height-in" min="0" max="11" value="7" step="1" aria-label="Height inches">
             <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;">
               <span>0"</span><span>11"</span>
             </div>
@@ -267,17 +269,17 @@
     </div>
 
     <!-- Step 3: Shoe size -->
-    <div class="step" id="step-3">
+    <div class="step" id="step-3" role="region" aria-label="Shoe Size">
       <h2>What's your shoe size?</h2>
       <p class="hint">Affects deck width recommendation</p>
       <div class="unit-toggle" id="shoe-unit-toggle">
-        <button class="active" onclick="setShoeUnit('us')">US</button>
-        <button onclick="setShoeUnit('eu')">EU</button>
-        <button onclick="setShoeUnit('uk')">UK</button>
+        <button class="active" aria-pressed="true" onclick="setShoeUnit('us')">US</button>
+        <button aria-pressed="false" onclick="setShoeUnit('eu')">EU</button>
+        <button aria-pressed="false" onclick="setShoeUnit('uk')">UK</button>
       </div>
       <div class="slider-group">
         <div class="slider-value" id="shoe-display">US 9</div>
-        <input type="range" id="shoe" min="5" max="15" value="9" step="0.5">
+        <input type="range" id="shoe" min="5" max="15" value="9" step="0.5" aria-label="Shoe size" aria-valuetext="US 9">
         <div style="display:flex;justify-content:space-between;color:var(--text-dim);font-size:0.8rem;margin-top:4px;" id="shoe-range-labels">
           <span>US 5</span><span>US 15</span>
         </div>
@@ -289,7 +291,7 @@
     </div>
 
     <!-- Step 4: Results -->
-    <div class="step" id="step-4">
+    <div class="step" id="step-4" role="region" aria-label="Results">
       <h2>Your Recommended Setup</h2>
       <div class="summary-bar" id="summary-bar"></div>
       <div class="results" id="results"></div>
@@ -308,7 +310,7 @@
     </div>
 
     <!-- Step 5: Comparison View -->
-    <div class="step" id="step-5">
+    <div class="step" id="step-5" role="region" aria-label="Setup Comparison">
       <h2>⚖️ Setup Comparison</h2>
       <div id="compare-summary" class="summary-bar" style="justify-content:center;gap:24px;"></div>
       <div class="compare-grid" id="compare-grid"></div>
@@ -330,8 +332,9 @@
     let selectedLevel = null;
 
     function selectLevel(el, level) {
-      document.querySelectorAll('#level-options .option').forEach(o => o.classList.remove('selected'));
+      document.querySelectorAll('#level-options .option').forEach(o => { o.classList.remove('selected'); o.setAttribute('aria-checked', 'false'); });
       el.classList.add('selected');
+      el.setAttribute('aria-checked', 'true');
       selectedLevel = level;
       setTimeout(() => nextStep(), 300);
     }
@@ -348,12 +351,18 @@
         const div = document.createElement('div');
         div.className = 'option';
         div.innerHTML = `<div class="icon">${s.icon}</div><div class="label">${s.name}</div><div class="desc">${s.description}</div>`;
+        div.setAttribute('role', 'radio');
+        div.setAttribute('aria-checked', 'false');
+        div.setAttribute('aria-label', s.name + ': ' + s.description);
+        div.setAttribute('tabindex', '0');
         div.onclick = () => {
-          document.querySelectorAll('#style-options .option').forEach(o => o.classList.remove('selected'));
+          document.querySelectorAll('#style-options .option').forEach(o => { o.classList.remove('selected'); o.setAttribute('aria-checked', 'false'); });
           div.classList.add('selected');
+          div.setAttribute('aria-checked', 'true');
           selectedStyle = s;
           setTimeout(() => nextStep(), 300);
         };
+        div.onkeydown = (e) => { if(e.key==='Enter'||e.key===' '){e.preventDefault();div.click();} };
         c.appendChild(div);
       });
     }
@@ -374,9 +383,15 @@
     }
 
     function updateProgress() {
+      const stepNames = ['Style', 'Experience', 'Height', 'Shoe Size', 'Results', 'Comparison'];
       document.querySelectorAll('.progress .dot').forEach((d, i) => {
         d.className = 'dot' + (i < currentStep ? ' done' : '') + (i === currentStep ? ' current' : '');
+        d.setAttribute('aria-label', 'Step ' + (i+1) + ': ' + stepNames[i] + (i === currentStep ? ' (current)' : i < currentStep ? ' (completed)' : ''));
+        d.setAttribute('aria-current', i === currentStep ? 'step' : 'false');
       });
+      // Announce step change
+      const announce = document.getElementById('step-announce');
+      if (announce) announce.textContent = 'Step ' + (currentStep+1) + ' of 5: ' + stepNames[currentStep];
     }
 
     let heightUnit = 'metric';
@@ -385,13 +400,13 @@
     function setHeightUnit(unit) {
       heightUnit = unit;
       const btns = document.querySelectorAll('#height-unit-toggle button');
-      btns.forEach(b => b.classList.remove('active'));
+      btns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
       if (unit === 'metric') {
-        btns[0].classList.add('active');
+        btns[0].classList.add('active'); btns[0].setAttribute('aria-pressed', 'true');
         document.getElementById('height-metric').style.display = '';
         document.getElementById('height-imperial').style.display = 'none';
       } else {
-        btns[1].classList.add('active');
+        btns[1].classList.add('active'); btns[1].setAttribute('aria-pressed', 'true');
         document.getElementById('height-metric').style.display = 'none';
         document.getElementById('height-imperial').style.display = '';
         // Sync cm → ft/in
@@ -428,22 +443,22 @@
 
       shoeUnit = unit;
       const btns = document.querySelectorAll('#shoe-unit-toggle button');
-      btns.forEach(b => b.classList.remove('active'));
+      btns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-pressed', 'false'); });
       const slider = document.getElementById('shoe');
       const labels = document.getElementById('shoe-range-labels');
 
       if (unit === 'us') {
-        btns[0].classList.add('active');
+        btns[0].classList.add('active'); btns[0].setAttribute('aria-pressed', 'true');
         slider.min = 5; slider.max = 15; slider.step = 0.5;
         slider.value = currentUS;
         labels.innerHTML = '<span>US 5</span><span>US 15</span>';
       } else if (unit === 'eu') {
-        btns[1].classList.add('active');
+        btns[1].classList.add('active'); btns[1].setAttribute('aria-pressed', 'true');
         slider.min = 36; slider.max = 50; slider.step = 0.5;
         slider.value = usToEu(currentUS);
         labels.innerHTML = '<span>EU 36</span><span>EU 50</span>';
       } else {
-        btns[2].classList.add('active');
+        btns[2].classList.add('active'); btns[2].setAttribute('aria-pressed', 'true');
         slider.min = 4.5; slider.max = 14.5; slider.step = 0.5;
         slider.value = usToUk(currentUS);
         labels.innerHTML = '<span>UK 4.5</span><span>UK 14.5</span>';
@@ -455,6 +470,7 @@
       const v = parseFloat(document.getElementById('shoe').value);
       const prefix = shoeUnit.toUpperCase();
       document.getElementById('shoe-display').textContent = `${prefix} ${v}`;
+      document.getElementById('shoe').setAttribute('aria-valuetext', prefix + ' ' + v);
     }
 
     function getHeightCm() {
@@ -477,6 +493,7 @@
     document.getElementById('height').addEventListener('input', e => {
       const cm = e.target.value;
       document.getElementById('height-display').textContent = `${cm} cm`;
+      e.target.setAttribute('aria-valuetext', cm + ' cm');
     });
 
     document.getElementById('shoe').addEventListener('input', updateShoeDisplay);
