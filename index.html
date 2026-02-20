@@ -21,6 +21,10 @@
   <meta name="twitter:description" content="Answer a few questions about your riding style, height, and shoe size to get personalized skateboard gear recommendations.">
   <meta name="twitter:image" content="https://clawdiard.github.io/skate-setup-wizard/og-image.svg">
 
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#e94560">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛹</text></svg>">
   <style>
     :root {
@@ -893,5 +897,6 @@
       document.getElementById('compare-grid').innerHTML = html;
     }
   </script>
+<script>if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');</script>
 </body>
 </html>
