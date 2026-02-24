@@ -642,18 +642,32 @@
     function restart() {
       selectedStyle = null;
       selectedLevel = null;
+      compareMode = false;
+      savedSetupA = null;
       document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
       document.getElementById('height').value = 170;
       document.getElementById('height-display').textContent = '170 cm';
+      setHeightUnit('metric');
       document.getElementById('shoe').value = 9;
       document.getElementById('shoe-display').textContent = 'US 9';
-      document.getElementById(`step-${currentStep}`).classList.remove('active');
+      setShoeUnit('us');
+      // Hide all steps, then show step 0
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
       currentStep = 0;
       document.getElementById('step-0').classList.add('active');
       updateProgress();
       document.getElementById('share-bar').style.display = 'none';
       document.getElementById('share-url-box').style.display = 'none';
       document.getElementById('copy-toast').style.display = 'none';
+      // Reset header from compare mode banner
+      const header = document.querySelector('header p');
+      header.innerHTML = 'Answer 4 quick questions — get your perfect setup';
+      header.style.color = '';
+      // Hide comparison dot in progress bar
+      document.getElementById('compare-dot').style.display = 'none';
+      // Restore compare button for next results view
+      const compareBtn = document.getElementById('compare-btn');
+      if (compareBtn) compareBtn.style.display = '';
       history.replaceState(null, '', location.pathname);
     }
 
